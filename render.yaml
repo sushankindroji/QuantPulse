@@ -12,17 +12,13 @@ services:
       - key: QP_STORAGE_BACKEND
         value: local
     healthCheckPath: /health
-    healthCheckInterval: 300
-    healthCheckTimeout: 30
 
   - type: pserv
     name: quantpulse-postgres
     runtime: postgres
     plan: standard
     region: oregon
-    ipAllowList: []
     postgres:
       version: 16
       database: quantpulse
       user: quantpulse
-      initialSqlPath: ./db/schema.sql
