@@ -1,0 +1,39 @@
+# Dependencies and build artifacts
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Development
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Backend and data (not needed for frontend deployment)
+backend/
+cpp_engine/
+data/
+experiments/
+db/
+docs/
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/

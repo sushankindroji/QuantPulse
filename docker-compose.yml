@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: quantpulse
+      POSTGRES_PASSWORD: quantpulse
+      POSTGRES_DB: quantpulse
+    ports:
+      - "5432:5432"
+    volumes:
+      - quantpulse_pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quantpulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      QP_EXPERIMENTS_DB: /app/experiments/experiments.db
+      QP_DATASETS_DB: /app/experiments/datasets.db
+      QP_DATA_DIR: /app/data
+      QP_EXPERIMENTS_DIR: /app/experiments
+      DATABASE_URL: postgresql://quantpulse:quantpulse@postgres:5432/quantpulse
+      QP_DATA_MODE: demo
+      QP_STORAGE_BACKEND: local
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./experiments:/app/experiments
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      API_URL: http://backend:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  quantpulse_pgdata:

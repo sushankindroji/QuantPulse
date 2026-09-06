@@ -1,0 +1,15 @@
+numpy==2.4.4
+pandas==3.0.2
+scikit-learn==1.8.0
+scipy==1.17.1
+pyarrow==25.0.1
+duckdb==1.5.5
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+pydantic==2.13.5
+hmmlearn==0.3.3
+pytest==9.1.1
+httpx==0.28.1
+pybind11==2.13.6
+requests==2.32.3
+python-multipart==0.0.20
