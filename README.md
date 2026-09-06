@@ -224,11 +224,3 @@ normal user workflow is entirely through the website.
   accepted.
 - If a hypothesis fails (non-significant IC, negative net Sharpe after
   costs), the experiment record shows that plainly.
-
-## Target roles
-
-Quant Research / Quant Trading / Algo Trading / HFT / Quant Dev / Financial
-Data Science, at firms including Jane Street, Citadel, Optiver, IMC,
-Millennium, Jump Trading, DRW, Two Sigma, WorldQuant, and Indian
-quant/HFT firms (AlphaGrep, Quadeye, Graviton, NK Securities, Futures First,
-Estee Advisors, Qube, and others).
