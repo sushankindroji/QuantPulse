@@ -5,42 +5,22 @@ services:
     plan: standard
     region: oregon
     dockerfilePath: backend/Dockerfile
-    autoDeploy: false
+    autoDeploy: true
     envVars:
-      - key: PORT
-        value: 8000
       - key: QP_DATA_MODE
         value: demo
       - key: QP_STORAGE_BACKEND
         value: local
-      - key: QUANTPULSE_CORS_ORIGINS
-        fromService:
-          name: quantpulse-frontend
-          property: renderURL
-        value: ${RENDER_EXTERNAL_URL}
     healthCheckPath: /health
     healthCheckInterval: 300
     healthCheckTimeout: 30
-
-  - type: web
-    name: quantpulse-frontend
-    runtime: node
-    plan: standard
-    region: oregon
-    buildCommand: npm run build
-    startCommand: npm start
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        fromService:
-          name: quantpulse-backend
-          property: renderURL
 
   - type: pserv
     name: quantpulse-postgres
     runtime: postgres
     plan: standard
     region: oregon
-    ipAllowList: [] # Allow all
+    ipAllowList: []
     postgres:
       version: 16
       database: quantpulse
