@@ -11,7 +11,6 @@ services:
         value: demo
       - key: QP_STORAGE_BACKEND
         value: local
-    healthCheckPath: /health
 
   - type: pserv
     name: quantpulse-postgres
