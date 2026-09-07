@@ -18,7 +18,13 @@ app = FastAPI(
 # to a comma-separated list (e.g. "https://app.example.com,https://staging.example.com").
 # Falls back to "*" only when unset, preserving today's local-dev behavior.
 _cors_env = os.environ.get("QUANTPULSE_CORS_ORIGINS", "").strip()
-_cors_origins = [o.strip() for o in _cors_env.split(",") if o.strip()] if _cors_env else ["*"]
+# Default CORS origins for local dev and deployed version
+_default_origins = [
+    "http://localhost:3000",           # Local dev
+    "http://localhost:8000",           # Local dev
+    "https://quant-pulse-seven.vercel.app",  # Production Vercel frontend
+]
+_cors_origins = [o.strip() for o in _cors_env.split(",") if o.strip()] if _cors_env else _default_origins
 
 app.add_middleware(
     CORSMiddleware,

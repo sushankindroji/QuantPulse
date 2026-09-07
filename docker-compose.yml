@@ -42,7 +42,9 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      # For browser client in Docker (localhost works within Docker network)
+      NEXT_PUBLIC_API_URL: http://backend:8000
+      # For build-time/server-side requests (uses Docker network hostname)
       API_URL: http://backend:8000
     ports:
       - "3000:3000"
