@@ -9,6 +9,11 @@ short-horizon, cost-surviving trading signal in it.
 
 **[Try the live demo →](https://quant-pulse-seven.vercel.app/)**
 
+
+<h2>🎥 Demo Video</h2>
+
+https://github.com/user-attachments/assets/2f187931-889a-4ef3-9090-f215cc893152
+
 ---
 
 ## What it does
