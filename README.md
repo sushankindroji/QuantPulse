@@ -12,7 +12,7 @@ short-horizon, cost-surviving trading signal in it.
 
 <h2>🎥 Demo Video</h2>
 
-[https://github.com/user-attachments/assets/2f187931-889a-4ef3-9090-f215cc893152](https://github.com/user-attachments/assets/0d294bbe-5e0a-4406-a42c-e667a4c821e6)
+https://github.com/sushankindroji/QuantPulse/issues/1#issue-5376846483
 
 ---
 
