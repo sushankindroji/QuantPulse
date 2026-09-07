@@ -37,8 +37,18 @@ class AlphaSignal(abc.ABC):
 
 
 def _zscore_clip(s: pd.Series, clip: float = 3.0) -> pd.Series:
-    z = (s - s.mean()) / (s.std() + 1e-12)
-    return z.clip(-clip, clip) / clip
+    """Z-score with clipping, handles NaN values gracefully."""
+    # Compute z-score only on valid values
+    valid = s.dropna()
+    if len(valid) < 2:
+        # Not enough data for meaningful z-score
+        return pd.Series(0.0, index=s.index)
+    
+    mean = valid.mean()
+    std = valid.std()
+    z = (s - mean) / (std + 1e-12)
+    # Fill NaN with 0 (neutral score) rather than propagating NaN
+    return z.fillna(0.0).clip(-clip, clip) / clip
 
 
 class MomentumSignal(AlphaSignal):
@@ -53,7 +63,11 @@ class MomentumSignal(AlphaSignal):
         )
 
     def score(self, features: pd.DataFrame) -> pd.Series:
-        return _zscore_clip(features[self.meta.required_features[0]])
+        """Score with NaN handling - fill missing features with neutral 0."""
+        col = self.meta.required_features[0]
+        if col not in features.columns:
+            return pd.Series(0.0, index=features.index)
+        return _zscore_clip(features[col].fillna(0.0))
 
 
 class MeanReversionSignal(AlphaSignal):
@@ -69,8 +83,11 @@ class MeanReversionSignal(AlphaSignal):
         )
 
     def score(self, features: pd.DataFrame) -> pd.Series:
+        """Score with NaN handling - fill missing features with neutral 0."""
         col = self.meta.required_features[0]
-        return -_zscore_clip(features[col])
+        if col not in features.columns:
+            return pd.Series(0.0, index=features.index)
+        return -_zscore_clip(features[col].fillna(0.0))
 
 
 class VolatilitySignal(AlphaSignal):
@@ -88,9 +105,12 @@ class VolatilitySignal(AlphaSignal):
         )
 
     def score(self, features: pd.DataFrame) -> pd.Series:
+        """Score with NaN handling - fill missing features with neutral 0."""
         mom, vr = self.meta.required_features
-        raw = features[mom] / (features[vr].replace(0, np.nan).abs() + 1e-6)
-        return _zscore_clip(raw.fillna(0))
+        if mom not in features.columns or vr not in features.columns:
+            return pd.Series(0.0, index=features.index)
+        raw = features[mom].fillna(0.0) / (features[vr].replace(0, np.nan).abs() + 1e-6)
+        return _zscore_clip(raw.fillna(0.0))
 
 
 class MicrostructureProxySignal(AlphaSignal):
@@ -106,8 +126,11 @@ class MicrostructureProxySignal(AlphaSignal):
         )
 
     def score(self, features: pd.DataFrame) -> pd.Series:
+        """Score with NaN handling - fill missing features with neutral 0."""
         col = self.meta.required_features[0]
-        centered = features[col] - 0.5
+        if col not in features.columns:
+            return pd.Series(0.0, index=features.index)
+        centered = features[col].fillna(0.5) - 0.5
         return _zscore_clip(centered)
 
 

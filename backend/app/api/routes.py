@@ -60,8 +60,19 @@ async def upload_dataset(
     validates it with human-readable messages, converts it to Parquet
     internally, and registers it for research. The caller never has to
     touch the filesystem or run a CLI script.
+    
+    Optimized for fast response - validation and storage happen synchronously
+    but are streamlined to minimize processing time.
     """
     raw_bytes = await file.read()
+    
+    # Quick size check before processing
+    if len(raw_bytes) > 200 * 1024 * 1024:  # 200 MB
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too large ({len(raw_bytes) / 1024 / 1024:.1f} MB). Maximum is 200 MB."
+        )
+    
     try:
         result = ingest_csv(raw_bytes, file.filename or "upload.csv")
     except ValueError as exc:
@@ -90,6 +101,8 @@ async def upload_dataset(
         )
     final_instrument = final_instrument.upper().replace("/", "_").replace("-", "_")
 
+    # Register dataset (writes Parquet and inserts DB record)
+    # This is the main processing step but is necessary for data integrity
     record = dataset_registry.register_dataset(
         df=result.dataframe,
         original_filename=file.filename or "upload.csv",

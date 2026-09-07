@@ -113,13 +113,32 @@ def build_feature_matrix(
     horizons: tuple[int, ...] = (1, 5, 10, 20),
     dropna: bool = True,
 ) -> pd.DataFrame:
-    """Assemble full feature + target matrix. Drops warm-up / tail NaNs."""
+    """Assemble full feature + target matrix. Drops warm-up / tail NaNs.
+    
+    When dropna=True, only drops rows where ALL features are NaN (completely
+    invalid rows) or where targets are NaN (can't evaluate). This preserves
+    more data for signal evaluation while still ensuring each row has some
+    valid features and a valid target for IC calculation.
+    """
     pieces = [builder(df) for builder in FEATURE_BUILDERS]
     features = pd.concat(pieces, axis=1)
     targets = build_targets(df, horizons)
     full = pd.concat([features, targets], axis=1)
+    
     if dropna:
-        full = full.dropna()
+        # Drop rows where:
+        # 1. ALL feature columns are NaN (completely unusable row)
+        # 2. ANY target column is NaN (can't evaluate forward returns)
+        # This is much less aggressive than full dropna() and preserves data
+        # where some features are valid even if others are still warming up.
+        feature_cols = [c for c in full.columns if not c.startswith("future_")]
+        target_cols = [c for c in full.columns if c.startswith("future_")]
+        
+        # Keep rows that have at least SOME valid features AND valid targets
+        has_any_feature = full[feature_cols].notna().any(axis=1)
+        has_all_targets = full[target_cols].notna().all(axis=1)
+        full = full[has_any_feature & has_all_targets]
+    
     return full
 
 
