@@ -27,7 +27,6 @@ htmlcov/
 backend/
 cpp_engine/
 data/
-experiments/
 db/
 docs/
 
