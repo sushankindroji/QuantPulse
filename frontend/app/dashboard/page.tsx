@@ -6,12 +6,15 @@ import { Panel, Stat, SyntheticBadge, PageHeader, LoadingBlock, ErrorBanner, Bad
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import Link from "next/link";
 import { useActiveResearch } from "@/lib/research-context";
+import CandlestickChart from "@/components/CandlestickChart";
 
 // Chart visualization is intentionally capped — this only limits how many
 // points are DRAWN, never how many rows are loaded/registered/researched.
 // The full dataset (potentially 100k+ rows) is always used by the research
 // engine; only this constant affects the on-screen line chart.
 const CHART_POINTS = 300;
+
+type ChartType = "line" | "candlestick";
 
 export default function DashboardPage() {
   const active = useActiveResearch();
@@ -24,6 +27,7 @@ export default function DashboardPage() {
   const [experiments, setExperiments] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [chartType, setChartType] = useState<ChartType>("line");
 
   useEffect(() => {
     let cancelled = false;
@@ -56,7 +60,12 @@ export default function DashboardPage() {
   }, [datasetId]);
 
   const bars = useMemo(() => (market?.bars ?? []).map((b: any, i: number) => ({
-    i, close: Number(b.close), label: b.timestamp ?? b.time ?? String(i),
+    i, 
+    close: Number(b.close), 
+    open: Number(b.open ?? b.close),
+    high: Number(b.high ?? b.close),
+    low: Number(b.low ?? b.close),
+    label: b.timestamp ?? b.time ?? String(i),
   })), [market]);
   const lastClose = market?.bars?.at(-1)?.close;
   const probs = Object.entries(regimeData?.current_probabilities ?? {}).sort((a: any, b: any) => b[1] - a[1]) as [string, number][];
@@ -91,7 +100,49 @@ export default function DashboardPage() {
               <Badge tone="accent">{isUploaded ? "UPLOADED DATA" : "DEMO / SYNTHETIC"}</Badge>
             </div>
             <div className="price-block"><span className="price">{lastClose != null ? Number(lastClose).toFixed(5) : "—"}</span><span className="price-note">latest close</span></div>
-            <div className="chart-shell"><ResponsiveContainer width="100%" height="100%"><LineChart data={bars} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}><CartesianGrid vertical={false} stroke="rgba(128,145,160,.12)" /><XAxis dataKey="i" hide /><YAxis domain={['dataMin','dataMax']} hide /><Tooltip contentStyle={{ background: "rgba(15,19,24,.94)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 10 }} labelFormatter={() => "Close"} formatter={(v: any) => [Number(v).toFixed(5), "Price"]} /><Line type="monotone" dataKey="close" stroke="var(--accent)" strokeWidth={2} dot={false} /></LineChart></ResponsiveContainer></div>
+            
+            {/* Chart type toggle */}
+            <div className="chart-toggle-group">
+              <button
+                className={`chart-toggle-btn ${chartType === "line" ? "active" : ""}`}
+                onClick={() => setChartType("line")}
+                type="button"
+              >
+                Line
+              </button>
+              <button
+                className={`chart-toggle-btn ${chartType === "candlestick" ? "active" : ""}`}
+                onClick={() => setChartType("candlestick")}
+                type="button"
+              >
+                Candlestick
+              </button>
+            </div>
+
+            <div className="chart-shell">
+              {chartType === "line" ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={bars} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                    <CartesianGrid vertical={false} stroke="rgba(128,145,160,.12)" />
+                    <XAxis dataKey="i" hide />
+                    <YAxis domain={['dataMin','dataMax']} hide />
+                    <Tooltip 
+                      contentStyle={{ 
+                        background: "rgba(15,19,24,.94)", 
+                        border: "1px solid rgba(255,255,255,.1)", 
+                        borderRadius: 10, 
+                        fontSize: 10 
+                      }} 
+                      labelFormatter={() => "Close"} 
+                      formatter={(v: any) => [Number(v).toFixed(5), "Price"]} 
+                    />
+                    <Line type="monotone" dataKey="close" stroke="var(--accent)" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <CandlestickChart data={bars} />
+              )}
+            </div>
           </Panel>
           <Panel className="hero-panel hero-side" eyebrow="REGIME ENGINE">
             {regimeData ? (<>
