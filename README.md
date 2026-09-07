@@ -7,6 +7,8 @@ upload historical FX data (or use the built-in synthetic demo), and
 QuantPulse tells you — honestly — whether there's evidence of a genuine,
 short-horizon, cost-surviving trading signal in it.
 
+**[Try the live demo →](https://quant-pulse-seven.vercel.app/)**
+
 ---
 
 ## What it does
