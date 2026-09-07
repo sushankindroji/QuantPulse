@@ -179,3 +179,15 @@ button { cursor: pointer; }
   border-radius: 999px;
   box-shadow: 0 0 8px rgba(125, 211, 252, 0.5);
 }
+
+/* Candlestick chart animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
